@@ -25,86 +25,17 @@ const Dashboard = {
 
     const settings = DB.getSettings();
     const savedPrefs = settings.dashboardPreferences || {};
-    const prefs = {
-      sectionOrder: savedPrefs.sectionOrder || 'accounts_first',
-      totalsStartDate: savedPrefs.totalsStartDate || Utils.today(),
-      totalsEndDateType: savedPrefs.totalsEndDateType || 'today',
-      totalsEndDate: savedPrefs.totalsEndDate || Utils.today(),
-      transactionsStartDate: savedPrefs.transactionsStartDate || Utils.today(),
-      transactionsEndDateType: savedPrefs.transactionsEndDateType || 'today',
-      transactionsEndDate: savedPrefs.transactionsEndDate || Utils.today(),
-      includedAccounts: savedPrefs.includedAccounts || DB.getAll(DB.COLLECTIONS.ACCOUNTS).map(a => a.id)
-    };
-
-    // Calculate Totals based on date range
-    let totalsStart = prefs.totalsStartDate;
-    let totalsEnd = prefs.totalsEndDateType === 'today' ? Utils.today() : prefs.totalsEndDate;
-    
-    const stats = DB.getDashboardStats(totalsStart, totalsEnd);
-    
-    // Calculate total balance for included accounts
     const allAccounts = DB.getAll(DB.COLLECTIONS.ACCOUNTS);
+    const allPersons = DB.getAll(DB.COLLECTIONS.PERSONS);
+
+    const widgetOrder = savedPrefs.widgetOrder || ['total_card', 'accounts', 'persons', 'transactions'];
+    const includedAccounts = savedPrefs.includedAccounts || allAccounts.map(a => a.id);
+    const includedPersons = savedPrefs.includedPersons || allPersons.map(p => p.id);
+
+    // Calculate total balance for included accounts
     const includedBalances = allAccounts
-      .filter(a => prefs.includedAccounts.includes(a.id))
+      .filter(a => includedAccounts.includes(a.id))
       .reduce((sum, a) => sum + Utils.parseNum(a.balance), 0);
-
-    const summarySection = `
-      <div class="dashboard-summary-cards" style="display:flex; gap:12px; margin-bottom:16px; margin-top:8px;">
-        <div class="summary-card" style="flex:1; background:var(--bg-card); padding:16px; border-radius:var(--radius-md); box-shadow:0 2px 8px rgba(0,0,0,0.05); text-align:center;">
-          <div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; font-weight:600;">Total Balance</div>
-          <div style="font-size:1.4rem; font-weight:800; color:var(--accent);">${Utils.formatCurrency(includedBalances)}</div>
-          <div style="font-size:0.7rem; color:var(--text-muted); margin-top:4px;">(Selected Accounts)</div>
-        </div>
-      </div>
-    `;
-
-    const accountsSection = `
-      <div class="accounts-horizontal-section">
-        <div class="accounts-section-header flex justify-between items-center mb-2">
-          <div class="accounts-section-title font-bold text-lg">🏦 My Accounts</div>
-          <div class="flex gap-2 items-center">
-            <div class="tabs" style="border:none; margin:0; min-height:0; border-radius:var(--radius-sm)">
-              <div class="tab ${this.accountsViewMode === 'grid' ? 'active' : ''}" onclick="Dashboard.toggleAccountsView('grid')" title="Grid View" style="padding: 2px 8px; font-size:1rem;">⊞</div>
-              <div class="tab ${this.accountsViewMode === 'list' ? 'active' : ''}" onclick="Dashboard.toggleAccountsView('list')" title="List View" style="padding: 2px 8px; font-size:1rem;">☰</div>
-            </div>
-            <button class="btn btn-sm btn-outline" onclick="App.navigate('accounts')">View All</button>
-          </div>
-        </div>
-        ${Accounts.renderDashboardAccounts(this.accountsViewMode)}
-      </div>
-    `;
-
-    const transactionsSection = `
-      <div class="recent-list mt-3">
-        <div class="recent-list-header">
-          <div class="recent-list-title">🧾 All Recent Transactions</div>
-          <div class="flex gap-2">
-            <button class="btn btn-sm btn-outline" onclick="App.navigate('reports'); setTimeout(() => Reports.switchReport('persons'), 50)" style="font-weight:600">
-              👥 Breakdown
-            </button>
-            <button class="btn btn-sm btn-outline" onclick="App.navigate('transactions')">Manage</button>
-          </div>
-        </div>
-        <div style="padding-bottom: 20px;">
-          ${(() => {
-            let tStart = prefs.transactionsStartDate;
-            let tEnd = prefs.transactionsEndDateType === 'today' ? Utils.today() : prefs.transactionsEndDate;
-            return Transactions.renderRecentDashboardRows(0, tStart, tEnd);
-          })()}
-        </div>
-      </div>
-    `;
-
-    const tabsSection = `
-      <div class="tabs mb-2" style="border:none;margin-bottom:16px">
-        <div class="tab ${this.currentTab === 'accounts' ? 'active' : ''}" onclick="Dashboard.switchTab('accounts')">
-          🏦 Accounts
-        </div>
-        <div class="tab ${this.currentTab === 'transactions' ? 'active' : ''}" onclick="Dashboard.switchTab('transactions')">
-          🧾 Transactions
-        </div>
-      </div>
-    `;
 
     let html = `
       <!-- Install Banner -->
@@ -112,16 +43,59 @@ const Dashboard = {
         📱 App install karein apne phone mein!
         <button class="btn btn-sm">Install</button>
       </div>
-      
-      ${summarySection}
-      ${tabsSection}
     `;
 
-    if (this.currentTab === 'accounts') {
-      html += accountsSection;
-    } else {
-      html += transactionsSection;
-    }
+    // Render widgets dynamically in user's configured order
+    widgetOrder.forEach(wId => {
+      if (wId === 'total_card') {
+        html += `
+          <div class="dashboard-summary-cards" style="display:flex; gap:12px; margin-bottom:16px; margin-top:8px;">
+            <div class="summary-card" style="flex:1; background:var(--bg-card); padding:16px; border-radius:var(--radius-md); border:1px solid var(--border); box-shadow:0 2px 8px rgba(0,0,0,0.05); text-align:center;">
+              <div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; font-weight:700;">Total Balance</div>
+              <div style="font-size:1.6rem; font-weight:800; color:var(--accent); margin-top:2px">${Utils.formatCurrency(includedBalances)}</div>
+              <div style="font-size:0.7rem; color:var(--text-muted); margin-top:4px;">(${includedAccounts.length} ${includedAccounts.length === 1 ? 'Account' : 'Accounts'} Selected)</div>
+            </div>
+          </div>
+        `;
+      } else if (wId === 'accounts') {
+        html += `
+          <div class="accounts-horizontal-section mb-3">
+            <div class="accounts-section-header flex justify-between items-center mb-2">
+              <div class="accounts-section-title font-bold text-lg">🏦 My Accounts</div>
+              <div class="flex gap-2 items-center">
+                <div class="tabs" style="border:none; margin:0; min-height:0; border-radius:var(--radius-sm)">
+                  <div class="tab ${this.accountsViewMode === 'grid' ? 'active' : ''}" onclick="Dashboard.toggleAccountsView('grid')" title="Grid View" style="padding: 2px 8px; font-size:1rem;">⊞</div>
+                  <div class="tab ${this.accountsViewMode === 'list' ? 'active' : ''}" onclick="Dashboard.toggleAccountsView('list')" title="List View" style="padding: 2px 8px; font-size:1rem;">☰</div>
+                </div>
+                <button class="btn btn-sm btn-outline" onclick="App.navigate('accounts')">View All</button>
+              </div>
+            </div>
+            ${Accounts.renderDashboardAccounts(this.accountsViewMode, includedAccounts)}
+          </div>
+        `;
+      } else if (wId === 'persons') {
+        if (typeof Persons !== 'undefined' && Persons.renderDashboardPersons) {
+          html += Persons.renderDashboardPersons(includedPersons);
+        }
+      } else if (wId === 'transactions') {
+        html += `
+          <div class="recent-list mt-3 mb-3">
+            <div class="recent-list-header">
+              <div class="recent-list-title">🧾 All Recent Transactions</div>
+              <div class="flex gap-2">
+                <button class="btn btn-sm btn-outline" onclick="App.navigate('reports'); setTimeout(() => Reports.switchReport('persons'), 50)" style="font-weight:600">
+                  👥 Breakdown
+                </button>
+                <button class="btn btn-sm btn-outline" onclick="App.navigate('transactions')">Manage</button>
+              </div>
+            </div>
+            <div style="padding-bottom: 10px;">
+              ${Transactions.renderRecentDashboardRows(0)}
+            </div>
+          </div>
+        `;
+      }
+    });
 
     return html;
   },

@@ -1375,51 +1375,58 @@ img {
     max-width: 100%;
   }
 
-  .data-table th,
-  .data-table td {
-    padding: 6px 4px;
-    font-size: 0.55rem;
-    vertical-align: top;
+  .data-table th {
+    padding: 10px 10px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
     white-space: nowrap;
-    line-height: 1.3;
+  }
+
+  .data-table td {
+    padding: 12px 10px;
+    font-size: 0.85rem;
+    vertical-align: middle;
+    white-space: nowrap;
+    line-height: 1.4;
   }
 
   .btn-icon {
-  width: 36px;
-  height: 36px;
-  min-height: 36px;
-  padding: 0;
-  border-radius: var(--radius-sm);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
+    width: 34px;
+    height: 34px;
+    min-height: 34px;
+    padding: 0;
+    border-radius: var(--radius-sm);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
   
   .btn-icon svg {
-    width: 10px;
-    height: 10px;
+    width: 16px;
+    height: 16px;
   }
 
   .badge {
-    background: transparent !important;
-    padding: 0 !important;
-    font-size: inherit;
+    padding: 2px 8px !important;
+    font-size: 0.75rem !important;
     font-weight: 600;
-    color: var(--accent-light) !important;
+    border-radius: 12px;
   }
 
   .date-card-header {
-    padding: 4px 5px;
-    gap: 2px;
+    padding: 8px 12px;
+    gap: 6px;
   }
 
   .date-card-title {
-    font-size: 0.55rem;
+    font-size: 0.8rem;
+    font-weight: 700;
   }
 
   .date-card-stats {
-    font-size: 0.5rem;
-    gap: 4px;
+    font-size: 0.75rem;
+    gap: 8px;
   }
 
   .form-input,

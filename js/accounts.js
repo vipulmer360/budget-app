@@ -328,15 +328,20 @@ const Accounts = {
     App.showModal(`🏦 ${acc.name} — Breakdown`, content);
   },
 
-  renderDashboardAccounts(mode = 'grid') {
+  renderDashboardAccounts(mode = 'grid', includedAccountIds = null) {
     this.syncAccountBalances();
-    const accounts = DB.getAll(DB.COLLECTIONS.ACCOUNTS);
+    let accounts = DB.getAll(DB.COLLECTIONS.ACCOUNTS);
+    
+    if (includedAccountIds && Array.isArray(includedAccountIds)) {
+      accounts = accounts.filter(a => includedAccountIds.includes(a.id));
+    }
+
     if (accounts.length === 0) {
       return `
         <div class="accounts-dashboard-empty" onclick="App.navigate('accounts')">
           <span style="font-size:32px">🏦</span>
-          <p>Add your Bank, Wallet & Pocket accounts</p>
-          <button class="btn btn-sm btn-outline">+ Add Account</button>
+          <p>No accounts selected or found for dashboard.</p>
+          <button class="btn btn-sm btn-outline">+ Manage Accounts</button>
         </div>
       `;
     }

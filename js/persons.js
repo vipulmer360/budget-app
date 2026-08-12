@@ -68,8 +68,8 @@ const Persons = {
           <p style="font-size:0.85rem;color:var(--text-muted);margin:0">Add persons/family members to track their money breakdown across accounts</p>
         </div>
       ` : `
-        <div class="table-container mt-3" style="max-width:550px">
-          <table class="data-table">
+        <div class="table-container mt-3" style="width:100%">
+          <table class="data-table" style="width:100%">
             <thead>
               <tr>
                 <th>Person Name</th>
@@ -150,18 +150,46 @@ const Persons = {
         </div>
 
         <!-- Bank-wise breakdown pills -->
-        <div style="margin-top:16px; padding-top:12px; border-top:1px solid var(--border)">
-          <div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; font-weight:700; margin-bottom:8px">🏦 Bank-wise Breakdown</div>
+        <div style="margin-top:18px; padding-top:14px; border-top:1px solid rgba(255,255,255,0.08)">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px">
+            <div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; font-weight:700; letter-spacing:0.5px; display:flex; align-items:center; gap:6px">
+              <span>🏦</span> <span>Bank-wise Breakdown</span>
+            </div>
+            <div style="font-size:0.75rem; color:var(--text-muted)">${breakdown.length} ${breakdown.length === 1 ? 'Account' : 'Accounts'}</div>
+          </div>
+
           ${breakdown.length === 0 ? `
-            <span class="text-muted" style="font-size:0.85rem">Is person ka kisi bank me balance nahi hai.</span>
+            <div style="padding:16px; background:rgba(255,255,255,0.02); border-radius:var(--radius-sm); border:1px dashed var(--border); text-align:center; color:var(--text-muted); font-size:0.85rem">
+              Is person ka kisi bank account me balance nahi hai.
+            </div>
           ` : `
-            <div style="display:flex; flex-wrap:wrap; gap:8px">
-              ${breakdown.map(b => `
-                <div style="padding:6px 12px; background:rgba(255,255,255,0.05); border-radius:var(--radius-sm); border:1px solid var(--border); display:flex; gap:8px; align-items:center">
-                  <span style="font-size:0.85rem">🏦 <b>${Utils.escapeHtml(b.accountName)}:</b></span>
-                  <span style="font-weight:700; font-size:0.9rem; color:${b.balance >= 0 ? 'var(--success)' : 'var(--danger)'}">${Utils.formatCurrency(b.balance)}</span>
-                </div>
-              `).join('')}
+            <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap:10px">
+              ${breakdown.map(b => {
+                const accObj = DB.getById(DB.COLLECTIONS.ACCOUNTS, b.accountId);
+                const preset = accObj && typeof Accounts !== 'undefined' && Accounts.typePresets && Accounts.typePresets[accObj.type] 
+                  ? Accounts.typePresets[accObj.type] 
+                  : { icon: '🏦', color: '#6366f1', gradient: 'linear-gradient(135deg, #312e81, #6366f1)' };
+                const percent = grandTotal > 0 && b.balance > 0 ? Math.round((b.balance / grandTotal) * 100) : 0;
+                
+                return `
+                  <div style="background:linear-gradient(135deg, rgba(30,41,59,0.7), rgba(15,23,42,0.8)); border:1.5px solid ${preset.color || '#6366f1'}66; border-radius:14px; padding:12px; box-shadow:0 4px 14px rgba(0,0,0,0.3), 0 0 12px ${preset.color || '#6366f1'}20; backdrop-filter:blur(10px); display:flex; flex-direction:column; justify-content:space-between; min-width:0;">
+                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; gap:6px">
+                      <div style="display:flex; align-items:center; gap:8px; min-width:0; flex:1">
+                        <div style="width:30px; height:30px; border-radius:50%; background:${preset.gradient || 'linear-gradient(135deg, #312e81, #6366f1)'}; display:flex; align-items:center; justify-content:center; font-size:1rem; box-shadow:0 2px 6px rgba(0,0,0,0.3); flex-shrink:0">
+                          ${preset.icon}
+                        </div>
+                        <div style="font-weight:700; font-size:0.85rem; color:#f8fafc; white-space:nowrap; overflow:hidden; text-overflow:ellipsis" title="${Utils.escapeHtml(b.accountName)}">
+                          ${Utils.escapeHtml(b.accountName)}
+                        </div>
+                      </div>
+                      ${percent > 0 ? `<span style="font-size:0.65rem; font-weight:700; padding:1px 6px; background:rgba(99,102,241,0.25); color:#a5b4fc; border-radius:10px; flex-shrink:0">${percent}%</span>` : ''}
+                    </div>
+                    <div style="font-size:1.15rem; font-weight:800; color:${b.balance >= 0 ? '#4ade80' : '#f87171'}; letter-spacing:-0.3px; overflow-wrap:break-word">
+                      ${Utils.formatCurrency(b.balance)}
+                    </div>
+                  </div>
+                `;
+              }).join('')}
             </div>
           `}
         </div>
@@ -176,16 +204,16 @@ const Persons = {
             <p style="font-size:0.85rem;color:var(--text-muted);margin:0">No transactions recorded for this person yet.</p>
           </div>
         ` : `
-          <div class="table-container">
-            <table class="data-table">
+          <div class="table-container" style="width:100%; overflow-x:auto">
+            <table class="data-table" style="width:100%">
               <thead>
                 <tr>
-                  <th class="text-center">Date</th>
-                  <th class="text-center">Account</th>
-                  <th class="text-center">Type</th>
-                  <th class="text-center">Amount</th>
-                  <th class="text-center">Notes</th>
-                  <th class="text-center">Actions</th>
+                  <th class="text-center" style="padding:10px 8px">Date</th>
+                  <th class="text-center" style="padding:10px 8px">Account</th>
+                  <th class="text-center" style="padding:10px 8px">Type</th>
+                  <th class="text-center" style="padding:10px 8px">Amount</th>
+                  <th class="text-center" style="padding:10px 8px">Notes</th>
+                  <th class="text-center" style="padding:10px 8px; width:70px">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -210,20 +238,20 @@ const Persons = {
 
                   return `
                     <tr>
-                      <td class="text-center">${Utils.formatDate(t.date)}</td>
-                      <td class="text-center"><b>${Utils.escapeHtml(accDisplay)}</b></td>
-                      <td class="text-center">
+                      <td class="text-center" style="padding:10px 8px">${Utils.formatDate(t.date)}</td>
+                      <td class="text-center" style="padding:10px 8px"><b>${Utils.escapeHtml(accDisplay)}</b></td>
+                      <td class="text-center" style="padding:10px 8px">
                         <span class="badge ${isInc ? 'badge-success' : 'badge-danger'}">
                           ${isInc ? 'Income' : 'Expense'}
                         </span>
                       </td>
-                      <td class="text-center">
+                      <td class="text-center" style="padding:10px 8px">
                         <span class="amount ${isInc ? 'credit' : 'debit'}">
                           ${isInc ? '+' : '-'}${Utils.formatCurrency(amt)}
                         </span>
                       </td>
-                      <td class="text-center">${t.notes ? Utils.escapeHtml(t.notes) : '-'}</td>
-                      <td class="text-center">
+                      <td class="text-center" style="padding:10px 8px; max-width:160px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis" title="${t.notes ? Utils.escapeHtml(t.notes) : ''}">${t.notes ? Utils.escapeHtml(t.notes) : '-'}</td>
+                      <td class="text-center" style="padding:10px 8px; width:70px">
                         <div class="table-actions" style="justify-content:center">
                           <button class="btn btn-ghost btn-icon" onclick="Transactions.openEditModal('${t.type}', '${t.id}')" title="Edit">${Utils.icons.edit}</button>
                           <button class="btn btn-ghost btn-icon text-danger" onclick="Transactions.deleteTransaction('${t.type}', '${t.id}')" title="Delete">${Utils.icons.trash}</button>
@@ -307,5 +335,46 @@ const Persons = {
       App.toast('Person deleted', 'info');
       App.refreshPage();
     }
+  },
+
+  renderDashboardPersons(includedPersonIds = null) {
+    let persons = DB.getAll(DB.COLLECTIONS.PERSONS);
+    if (includedPersonIds && Array.isArray(includedPersonIds)) {
+      persons = persons.filter(p => includedPersonIds.includes(p.id));
+    }
+
+    if (persons.length === 0) return '';
+
+    const personsWithStats = persons.map(p => {
+      const { breakdown, grandTotal } = Calculations.getPersonBankBreakdown(p.id);
+      return { ...p, breakdown, grandTotal };
+    });
+
+    return `
+      <div class="persons-dashboard-section mt-3 mb-3">
+        <div class="flex justify-between items-center mb-2">
+          <div class="font-bold text-lg">👥 Persons / Family Breakdown</div>
+          <button class="btn btn-sm btn-outline" onclick="App.navigate('persons')">View All</button>
+        </div>
+        <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap:10px">
+          ${personsWithStats.map(p => `
+            <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:12px; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,0.04); transition:all 0.2s ease" onclick="App.navigate('persons'); setTimeout(() => Persons.selectPerson('${p.id}'), 50)">
+              <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px">
+                <div style="display:flex; align-items:center; gap:8px; font-weight:700">
+                  <span style="font-size:1.2rem">👤</span>
+                  <span style="font-size:0.95rem">${Utils.escapeHtml(p.name)}</span>
+                </div>
+              </div>
+              <div style="font-size:1.15rem; font-weight:800; color:${p.grandTotal >= 0 ? 'var(--success)' : 'var(--danger)'}">
+                ${Utils.formatCurrency(p.grandTotal)}
+              </div>
+              <div style="font-size:0.75rem; color:var(--text-muted); margin-top:4px">
+                ${p.breakdown.length} Bank Accounts
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
   }
 };

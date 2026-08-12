@@ -6,81 +6,102 @@ const Settings = {
   render() {
     const settings = DB.getSettings();
     const accounts = DB.getAll(DB.COLLECTIONS.ACCOUNTS);
+    const persons = DB.getAll(DB.COLLECTIONS.PERSONS);
     const savedPrefs = settings.dashboardPreferences || {};
-    const dashPrefs = {
-      sectionOrder: savedPrefs.sectionOrder || 'accounts_first',
-      totalsStartDate: savedPrefs.totalsStartDate || Utils.today(),
-      totalsEndDateType: savedPrefs.totalsEndDateType || 'today',
-      totalsEndDate: savedPrefs.totalsEndDate || Utils.today(),
-      transactionsStartDate: savedPrefs.transactionsStartDate || Utils.today(),
-      transactionsEndDateType: savedPrefs.transactionsEndDateType || 'today',
-      transactionsEndDate: savedPrefs.transactionsEndDate || Utils.today(),
-      includedAccounts: savedPrefs.includedAccounts || accounts.map(a => a.id)
+    
+    // Default widget order & visibility
+    const defaultWidgets = ['total_card', 'accounts', 'persons', 'transactions'];
+    const currentWidgets = savedPrefs.widgetOrder || defaultWidgets;
+    const includedAccounts = savedPrefs.includedAccounts || accounts.map(a => a.id);
+    const includedPersons = savedPrefs.includedPersons || persons.map(p => p.id);
+
+    const widgetLabels = {
+      'total_card': { title: '💰 Total Balance Card', desc: 'Displays total balance summary across selected accounts' },
+      'accounts': { title: '🏦 My Accounts Section', desc: 'Displays accounts grid / list view' },
+      'persons': { title: '👥 Persons Section', desc: 'Displays family/persons balance breakdown' },
+      'transactions': { title: '🧾 Recent Transactions', desc: 'Displays latest transactions feed' }
     };
+
+    // Ensure all widgets are present in the list (for toggling/sorting)
+    const allWidgetIds = [...new Set([...currentWidgets, ...defaultWidgets])];
 
     return `
       <div style="max-width:600px">
         <!-- Dashboard Customization -->
         <div class="card mb-3" style="border: 1px solid var(--accent)">
           <div class="card-header">
-            <h3 class="card-title">📊 Dashboard Customization</h3>
+            <h3 class="card-title">📊 Dashboard Customization & Variable Layout</h3>
           </div>
           <form id="dashboardSettingsForm" autocomplete="off" onsubmit="Settings.saveDashboard(event)">
             
-            <div class="form-group">
-              <label class="form-label">Dashboard Layout Order</label>
-              <select class="form-select" name="sectionOrder">
-                <option value="accounts_first" ${dashPrefs.sectionOrder === 'accounts_first' ? 'selected' : ''}>1. Accounts  ->  2. Recent Transactions</option>
-                <option value="transactions_first" ${dashPrefs.sectionOrder === 'transactions_first' ? 'selected' : ''}>1. Recent Transactions  ->  2. Accounts</option>
-              </select>
-            </div>
-            
-            <div class="form-group">
-              <label class="form-label">Profit & Loss Date Range</label>
-              <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-                <input type="date" class="form-input" name="totalsStartDate" value="${dashPrefs.totalsStartDate}" style="flex:1">
-                <span>to</span>
-                <select class="form-select" name="totalsEndDateType" style="flex:1" onchange="document.getElementById('totalsEndDateInput').style.display = this.value === 'custom' ? 'block' : 'none'">
-                  <option value="today" ${dashPrefs.totalsEndDateType === 'today' ? 'selected' : ''}>Today</option>
-                  <option value="custom" ${dashPrefs.totalsEndDateType === 'custom' ? 'selected' : ''}>Custom Date</option>
-                </select>
-                <input type="date" class="form-input" id="totalsEndDateInput" name="totalsEndDate" value="${dashPrefs.totalsEndDate}" style="display: ${dashPrefs.totalsEndDateType === 'custom' ? 'block' : 'none'}; flex:1">
+            <!-- Variable Widget Ordering System -->
+            <div class="form-group mb-3">
+              <label class="form-label" style="font-weight:700">🧩 Dashboard Widget Layout & Display Order</label>
+              <p class="text-muted" style="font-size:0.8rem; margin-top:-4px; margin-bottom:10px">Enable/disable widgets and set display order (1 = Top position)</p>
+              
+              <div style="display:flex; flex-direction:column; gap:8px">
+                ${allWidgetIds.map((wId, idx) => {
+                  const widgetInfo = widgetLabels[wId] || { title: wId, desc: '' };
+                  const isChecked = currentWidgets.includes(wId);
+                  return `
+                    <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 12px; background:var(--bg-glass); border:1px solid var(--border); border-radius:var(--radius-sm)">
+                      <div style="display:flex; align-items:center; gap:10px">
+                        <input type="checkbox" name="activeWidgets" value="${wId}" ${isChecked ? 'checked' : ''} style="width:18px; height:18px; accent-color:var(--accent)">
+                        <div>
+                          <div style="font-weight:700; font-size:0.9rem">${widgetInfo.title}</div>
+                          <div class="text-muted" style="font-size:0.75rem">${widgetInfo.desc}</div>
+                        </div>
+                      </div>
+                      <div style="display:flex; align-items:center; gap:4px">
+                        <span style="font-size:0.75rem; color:var(--text-muted); margin-right:4px">Order:</span>
+                        <select class="form-select" name="order_${wId}" style="width:65px; padding:4px 6px; font-size:0.8rem">
+                          ${allWidgetIds.map((_, i) => `
+                            <option value="${i + 1}" ${currentWidgets.indexOf(wId) === i ? 'selected' : ''}>#${i + 1}</option>
+                          `).join('')}
+                        </select>
+                      </div>
+                    </div>
+                  `;
+                }).join('')}
               </div>
-              <div class="form-helper">Date range for Top Summary Cards.</div>
             </div>
 
-            <div class="form-group">
-              <label class="form-label">Recent Transactions Range</label>
-              <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-                <input type="date" class="form-input" name="transactionsStartDate" value="${dashPrefs.transactionsStartDate}" style="flex:1">
-                <span>to</span>
-                <select class="form-select" name="transactionsEndDateType" style="flex:1" onchange="document.getElementById('transEndDateInput').style.display = this.value === 'custom' ? 'block' : 'none'">
-                  <option value="today" ${dashPrefs.transactionsEndDateType === 'today' ? 'selected' : ''}>Today</option>
-                  <option value="custom" ${dashPrefs.transactionsEndDateType === 'custom' ? 'selected' : ''}>Custom Date</option>
-                </select>
-                <input type="date" class="form-input" id="transEndDateInput" name="transactionsEndDate" value="${dashPrefs.transactionsEndDate}" style="display: ${dashPrefs.transactionsEndDateType === 'custom' ? 'block' : 'none'}; flex:1">
-              </div>
-              <div class="form-helper">Filter transactions shown on the dashboard.</div>
-            </div>
-
-            <div class="form-group">
-              <label class="form-label">Accounts to Include in Totals</label>
-              <div style="background:var(--bg-glass); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px; max-height: 200px; overflow-y: auto;">
+            <!-- Account Selection Sub-Setting -->
+            <div class="form-group mb-3">
+              <label class="form-label" style="font-weight:700">🏦 Accounts Selection for Dashboard</label>
+              <p class="text-muted" style="font-size:0.8rem; margin-top:-4px; margin-bottom:8px">Select which accounts to display on dashboard & calculate in Total Balance</p>
+              <div style="background:var(--bg-glass); border:1px solid var(--border); border-radius:var(--radius-sm); padding:10px; max-height: 180px; overflow-y: auto;">
                 ${accounts.map(acc => `
-                  <label style="display:flex; align-items:center; gap:8px; cursor:pointer; margin-bottom:8px;">
+                  <label style="display:flex; align-items:center; gap:8px; cursor:pointer; padding:4px 0;">
                     <input type="checkbox" name="includedAccounts" value="${acc.id}" 
-                      ${dashPrefs.includedAccounts.includes(acc.id) ? 'checked' : ''} 
+                      ${includedAccounts.includes(acc.id) ? 'checked' : ''} 
                       style="width:16px; height:16px; accent-color:var(--accent);">
-                    <span style="font-weight:500;">${Utils.escapeHtml(acc.name)}</span>
+                    <span style="font-weight:600; font-size:0.85rem">${Utils.escapeHtml(acc.name)}</span>
                     <span style="opacity:0.6; font-size:0.8rem; margin-left:auto;">${Utils.formatCurrency(acc.balance)}</span>
                   </label>
                 `).join('')}
                 ${accounts.length === 0 ? '<div style="opacity:0.6;font-size:0.85rem">No accounts found.</div>' : ''}
               </div>
-              <div class="form-helper">Which accounts should be summed up in 'Total Balance'?</div>
             </div>
 
-            <button type="submit" class="btn btn-primary btn-block mt-2">💾 Save Dashboard Settings</button>
+            <!-- Person Selection Sub-Setting -->
+            <div class="form-group mb-3">
+              <label class="form-label" style="font-weight:700">👥 Persons Selection for Dashboard</label>
+              <p class="text-muted" style="font-size:0.8rem; margin-top:-4px; margin-bottom:8px">Select which persons/family members to display on dashboard</p>
+              <div style="background:var(--bg-glass); border:1px solid var(--border); border-radius:var(--radius-sm); padding:10px; max-height: 180px; overflow-y: auto;">
+                ${persons.map(p => `
+                  <label style="display:flex; align-items:center; gap:8px; cursor:pointer; padding:4px 0;">
+                    <input type="checkbox" name="includedPersons" value="${p.id}" 
+                      ${includedPersons.includes(p.id) ? 'checked' : ''} 
+                      style="width:16px; height:16px; accent-color:var(--accent);">
+                    <span style="font-weight:600; font-size:0.85rem">👤 ${Utils.escapeHtml(p.name)}</span>
+                  </label>
+                `).join('')}
+                ${persons.length === 0 ? '<div style="opacity:0.6;font-size:0.85rem">No persons found.</div>' : ''}
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block mt-2">💾 Save Custom Dashboard Layout</button>
           </form>
         </div>
 
@@ -305,19 +326,30 @@ const Settings = {
     e.preventDefault();
     const form = new FormData(e.target);
     const existing = DB.getSettings();
+    
+    const activeWidgets = form.getAll('activeWidgets');
+    const widgetOrderWithScores = activeWidgets.map(wId => {
+      const orderVal = parseInt(form.get(`order_${wId}`), 10) || 1;
+      return { id: wId, order: orderVal };
+    });
+
+    widgetOrderWithScores.sort((a, b) => a.order - b.order);
+    const sortedWidgetOrder = widgetOrderWithScores.map(w => w.id);
+
     const dashPrefs = {
-      sectionOrder: form.get('sectionOrder'),
-      totalsStartDate: form.get('totalsStartDate'),
-      totalsEndDateType: form.get('totalsEndDateType'),
-      totalsEndDate: form.get('totalsEndDate'),
-      transactionsStartDate: form.get('transactionsStartDate'),
-      transactionsEndDateType: form.get('transactionsEndDateType'),
-      transactionsEndDate: form.get('transactionsEndDate'),
-      includedAccounts: form.getAll('includedAccounts') // Returns array of checked values
+      widgetOrder: sortedWidgetOrder,
+      includedAccounts: form.getAll('includedAccounts'),
+      includedPersons: form.getAll('includedPersons')
     };
     
     DB.saveSettings({ ...existing, dashboardPreferences: dashPrefs });
-    App.toast('Dashboard Settings saved! 📊', 'success');
+    if (typeof Sync !== 'undefined' && Sync.isOnline) {
+      Sync.pushCollection(DB.COLLECTIONS.SETTINGS);
+      App.toast('Dashboard Layout Saved & Synced to Cloud! ☁️📊', 'success');
+    } else {
+      App.toast('Dashboard Layout Saved Locally! 📊', 'success');
+    }
+    App.refreshPage();
   },
 
   exportData() {
