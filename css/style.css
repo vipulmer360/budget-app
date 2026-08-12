@@ -1251,9 +1251,24 @@ img {
   50% { opacity: 0.5; }
 }
 
+/* Responsive Table/Card View Utilities */
+.desktop-only-table {
+  display: block;
+}
+.mobile-only-cards {
+  display: none;
+}
+
 /* ========== RESPONSIVE ========== */
 
 @media (max-width: 768px) {
+  .desktop-only-table {
+    display: none !important;
+  }
+  .mobile-only-cards {
+    display: block !important;
+  }
+
   html {
     font-size: 15px;
   }
