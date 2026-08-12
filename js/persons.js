@@ -68,19 +68,18 @@ const Persons = {
           <p style="font-size:0.85rem;color:var(--text-muted);margin:0">Add persons/family members to track their money breakdown across accounts</p>
         </div>
       ` : `
-        <div class="table-container mt-3">
+        <div class="table-container mt-3" style="max-width:550px">
           <table class="data-table">
             <thead>
               <tr>
                 <th>Person Name</th>
-                <th>Bank Breakdown</th>
-                <th class="text-right">Total Balance</th>
-                <th class="text-right">Actions</th>
+                <th class="text-right" style="width:140px">Total Balance</th>
+                <th class="text-right" style="width:90px">Actions</th>
               </tr>
             </thead>
             <tbody>
               ${personsWithStats.map(p => `
-                <tr style="cursor:pointer" onclick="Persons.selectPerson('${p.id}')">
+                <tr style="cursor:pointer" onclick="Persons.selectPerson('${p.id}')" title="Click to view ledger">
                   <td>
                     <div class="font-bold flex items-center gap-2">
                       <span style="font-size:1.2rem">👤</span>
@@ -90,23 +89,11 @@ const Persons = {
                       </div>
                     </div>
                   </td>
-                  <td>
-                    ${p.breakdown.length === 0 ? '<span class="text-muted" style="font-size:0.8rem">No bank balance</span>' : `
-                      <div style="display:flex; flex-wrap:wrap; gap:4px">
-                        ${p.breakdown.map(b => `
-                          <span style="font-size:0.75rem; padding:2px 8px; background:rgba(255,255,255,0.06); border-radius:12px; border:1px solid var(--border)">
-                            <b>${Utils.escapeHtml(b.accountName)}:</b> ${Utils.formatCurrency(b.balance)}
-                          </span>
-                        `).join('')}
-                      </div>
-                    `}
-                  </td>
                   <td class="text-right font-bold" style="font-size:1.05rem; color:${p.grandTotal >= 0 ? 'var(--success)' : 'var(--danger)'}">
                     ${Utils.formatCurrency(p.grandTotal)}
                   </td>
                   <td class="text-right" onclick="event.stopPropagation()">
                     <div class="table-actions" style="justify-content:flex-end">
-                      <button class="btn btn-outline btn-sm" onclick="Persons.selectPerson('${p.id}')" title="View Transactions">👁️ Ledger</button>
                       <button class="btn btn-ghost btn-icon" onclick="Persons.openEditModal('${p.id}')" title="Edit">${Utils.icons.edit}</button>
                       <button class="btn btn-ghost btn-icon text-danger" onclick="Persons.deletePerson('${p.id}')" title="Delete">${Utils.icons.trash}</button>
                     </div>
