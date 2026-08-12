@@ -114,22 +114,35 @@ const Transactions = {
                   `;
                 };
 
-                // If accountFilter is set, we only render ONE row (for the selected account)
-                if (Transactions.accountFilter && typeof window.Calculations !== 'undefined') {
-                  const details = Calculations.getAccountDetails(t, Transactions.accountFilter);
-                  const acc = DB.getById(DB.COLLECTIONS.ACCOUNTS, Transactions.accountFilter);
-                  const accDisplay = acc ? acc.name : '-';
-                  html += renderRow(accDisplay, details.amount, details.type === 'income');
-                } 
-                // Else, if transaction has multiple accounts, we split it into multiple rows!
-                else if (t.accounts && t.accounts.length > 0) {
-                  t.accounts.forEach(accEntry => {
-                    const acc = DB.getById(DB.COLLECTIONS.ACCOUNTS, accEntry.accountId);
-                    const accDisplay = acc ? acc.name : (accEntry.accountName || '-');
-                    const displayAmount = parseFloat(accEntry.amount) || 0;
-                    const isInc = (accEntry.type || t.type) === 'income';
+                // If accountFilter is set, we ONLY render rows matching the selected account
+                if (Transactions.accountFilter) {
+                  const targetAccId = String(Transactions.accountFilter);
+                  if (t.accounts && Array.isArray(t.accounts)) {
+                    t.accounts.filter(a => String(a.accountId) === targetAccId).forEach(accEntry => {
+                      const acc = DB.getById(DB.COLLECTIONS.ACCOUNTS, accEntry.accountId);
+                      const accDisplay = acc ? acc.name : (accEntry.accountName || '-');
+                      const displayAmount = parseFloat(accEntry.amount) || 0;
+                      const isInc = (accEntry.type || t.type) === 'income';
+                      html += renderRow(accDisplay, displayAmount, isInc);
+                    });
+                  } else if (String(t.accountId) === targetAccId) {
+                    const acc = DB.getById(DB.COLLECTIONS.ACCOUNTS, targetAccId);
+                    const accDisplay = acc ? acc.name : (t.accountName || '-');
+                    const displayAmount = parseFloat(t.amount) || parseFloat(t.price) || 0;
+                    const isInc = t.type === 'income';
                     html += renderRow(accDisplay, displayAmount, isInc);
-                  });
+                  }
+                } 
+                // In All Transactions view (no account filter), show 1 single row per transaction with joined account names & first account amount
+                else if (t.accounts && t.accounts.length > 0) {
+                  const accNames = t.accounts.map(accEntry => {
+                    const acc = DB.getById(DB.COLLECTIONS.ACCOUNTS, accEntry.accountId);
+                    return acc ? acc.name : (accEntry.accountName || '');
+                  }).filter(n => n.trim() !== '');
+                  const accDisplay = accNames.length > 0 ? accNames.join(', ') : '-';
+                  const firstAccAmount = parseFloat(t.accounts[0].amount) || 0;
+                  const isInc = (t.accounts[0].type || t.type) === 'income';
+                  html += renderRow(accDisplay, firstAccAmount, isInc);
                 } 
                 // Legacy fallback for single accountId
                 else {
@@ -269,7 +282,13 @@ const Transactions = {
 
     let filtered = Utils.filterBySearch(transactions, this.searchTerm, ['notes', 'accountName']);
     if (this.accountFilter) {
-      filtered = filtered.filter(t => t.accountId === this.accountFilter);
+      const targetId = String(this.accountFilter);
+      filtered = filtered.filter(t => {
+        if (t.accounts && Array.isArray(t.accounts)) {
+          return t.accounts.some(a => String(a.accountId) === targetId);
+        }
+        return String(t.accountId) === targetId;
+      });
     }
     filtered.reverse();
 
