@@ -37,22 +37,10 @@ const Auth = {
 
   // Listen for auth state changes
   onAuthStateChanged(callback) {
-    // Bypass Google Login
-    const mockUser = {
-      uid: 'local_user_123',
-      displayName: 'Local User',
-      email: 'local@budget.app',
-      photoURL: ''
-    };
-    this.currentUser = mockUser;
-    callback(mockUser);
-    
-    /*
     firebaseAuth.onAuthStateChanged(user => {
       this.currentUser = user;
       callback(user);
     });
-    */
   },
 
   // Get current user
