@@ -82,10 +82,10 @@ const Persons = {
                 <tr style="cursor:pointer" onclick="Persons.selectPerson('${p.id}')" title="Click to view ledger">
                   <td>
                     <div class="font-bold flex items-center gap-2">
-                      <span style="font-size:1.2rem">👤</span>
+                      <span style="font-size:1.4rem">👤</span>
                       <div>
-                        <div>${Utils.escapeHtml(p.name)}</div>
-                        ${p.note ? `<div class="text-muted" style="font-size:0.75rem">${Utils.escapeHtml(p.note)}</div>` : ''}
+                        <div style="font-size:1.1rem; font-weight:700; color:var(--text-main); line-height:1.2">${Utils.escapeHtml(p.name)}</div>
+                        ${p.note ? `<div class="text-muted" style="font-size:0.8rem; margin-top:2px">${Utils.escapeHtml(p.note)}</div>` : ''}
                       </div>
                     </div>
                   </td>
