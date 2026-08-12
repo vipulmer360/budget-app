@@ -14,6 +14,7 @@ const Settings = {
     const currentWidgets = savedPrefs.widgetOrder || defaultWidgets;
     const includedAccounts = savedPrefs.includedAccounts || accounts.map(a => a.id);
     const includedPersons = savedPrefs.includedPersons || persons.map(p => p.id);
+    const currentScale = parseInt(savedPrefs.uiScale, 10) || 88;
 
     const widgetLabels = {
       'total_card': { title: '💰 Total Balance Card', desc: 'Displays total balance summary across selected accounts' },
@@ -30,9 +31,27 @@ const Settings = {
         <!-- Dashboard Customization -->
         <div class="card mb-3" style="border: 1px solid var(--accent)">
           <div class="card-header">
-            <h3 class="card-title">📊 Dashboard Customization & Variable Layout</h3>
+            <h3 class="card-title">📊 Dashboard Customization & UI Density</h3>
           </div>
           <form id="dashboardSettingsForm" autocomplete="off" onsubmit="Settings.saveDashboard(event)">
+            
+            <!-- Micro UI Scale & Compact Density Slider -->
+            <div class="form-group mb-3" style="background:rgba(99,102,241,0.08); padding:12px; border-radius:12px; border:1px solid rgba(99,102,241,0.25)">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px">
+                <label class="form-label" style="font-weight:700; margin:0">📐 Compact UI & Micro Scale Adjuster</label>
+                <span id="uiScaleValBadge" style="font-size:0.85rem; font-weight:800; padding:2px 10px; background:var(--accent); color:white; border-radius:10px">${currentScale}%</span>
+              </div>
+              <p class="text-muted" style="font-size:0.8rem; margin-bottom:10px">Adjust table font & cell size in 1% micro-steps to fit all columns perfectly on mobile screens!</p>
+              
+              <input type="range" min="70" max="105" step="1" name="uiScale" value="${currentScale}" class="form-range" style="width:100%; accent-color:var(--accent); cursor:pointer" oninput="Settings.updateScalePreview(this.value)">
+              
+              <div style="display:flex; justify-content:space-between; gap:6px; margin-top:10px">
+                <button type="button" class="btn btn-outline btn-sm" onclick="Settings.setScalePreset(78)" style="flex:1; font-size:0.75rem; padding:4px 4px">Micro (78%)</button>
+                <button type="button" class="btn btn-outline btn-sm" onclick="Settings.setScalePreset(86)" style="flex:1; font-size:0.75rem; padding:4px 4px">Compact (86%)</button>
+                <button type="button" class="btn btn-outline btn-sm" onclick="Settings.setScalePreset(94)" style="flex:1; font-size:0.75rem; padding:4px 4px">Balanced (94%)</button>
+                <button type="button" class="btn btn-outline btn-sm" onclick="Settings.setScalePreset(100)" style="flex:1; font-size:0.75rem; padding:4px 4px">Normal (100%)</button>
+              </div>
+            </div>
             
             <!-- Variable Widget Ordering System -->
             <div class="form-group mb-3">
@@ -322,6 +341,20 @@ const Settings = {
     if (brandEl) brandEl.textContent = newSettings.businessName;
   },
 
+  updateScalePreview(val) {
+    const badge = document.getElementById('uiScaleValBadge');
+    if (badge) badge.textContent = `${val}%`;
+    document.documentElement.style.setProperty('--ui-scale-ratio', (parseInt(val, 10) / 100).toString());
+  },
+
+  setScalePreset(val) {
+    const slider = document.querySelector('input[name="uiScale"]');
+    if (slider) {
+      slider.value = val;
+      this.updateScalePreview(val);
+    }
+  },
+
   saveDashboard(e) {
     e.preventDefault();
     const form = new FormData(e.target);
@@ -336,18 +369,23 @@ const Settings = {
     widgetOrderWithScores.sort((a, b) => a.order - b.order);
     const sortedWidgetOrder = widgetOrderWithScores.map(w => w.id);
 
+    const uiScaleVal = parseInt(form.get('uiScale'), 10) || 88;
+
     const dashPrefs = {
       widgetOrder: sortedWidgetOrder,
       includedAccounts: form.getAll('includedAccounts'),
-      includedPersons: form.getAll('includedPersons')
+      includedPersons: form.getAll('includedPersons'),
+      uiScale: uiScaleVal
     };
     
     DB.saveSettings({ ...existing, dashboardPreferences: dashPrefs });
+    if (typeof App !== 'undefined' && App.applyUIScale) App.applyUIScale();
+
     if (typeof Sync !== 'undefined' && Sync.isOnline) {
       Sync.pushCollection(DB.COLLECTIONS.SETTINGS);
-      App.toast('Dashboard Layout Saved & Synced to Cloud! ☁️📊', 'success');
+      App.toast('UI Scale & Dashboard Settings Saved to Cloud! ☁️📊', 'success');
     } else {
-      App.toast('Dashboard Layout Saved Locally! 📊', 'success');
+      App.toast('Settings Saved Locally! 📊', 'success');
     }
     App.refreshPage();
   },

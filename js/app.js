@@ -19,6 +19,18 @@ const App = {
     settings: { title: '⚙️ Settings', icon: 'settings', module: Settings }
   },
 
+  // Apply saved UI scale / density ratio
+  applyUIScale() {
+    try {
+      const settings = DB.getSettings();
+      const savedPrefs = settings.dashboardPreferences || {};
+      const scale = parseInt(savedPrefs.uiScale, 10) || 88;
+      document.documentElement.style.setProperty('--ui-scale-ratio', (scale / 100).toString());
+    } catch (e) {
+      document.documentElement.style.setProperty('--ui-scale-ratio', '0.88');
+    }
+  },
+
   // Initialize app
   init() {
     this.registerServiceWorker();
@@ -27,6 +39,7 @@ const App = {
     // Initialize theme
     const savedTheme = localStorage.getItem('budget_theme') || 'dark';
     document.documentElement.setAttribute('data-theme', savedTheme);
+    this.applyUIScale();
 
     // Initialize sync module
     if (typeof Sync !== 'undefined') Sync.init();

@@ -204,17 +204,16 @@ const Persons = {
             <p style="font-size:0.85rem;color:var(--text-muted);margin:0">No transactions recorded for this person yet.</p>
           </div>
         ` : `
-          <!-- Desktop Table View -->
-          <div class="table-container desktop-only-table" style="width:100%">
+          <div class="table-container" style="width:100%; overflow-x:auto">
             <table class="data-table" style="width:100%">
               <thead>
                 <tr>
-                  <th class="text-center" style="padding:10px 8px">Date</th>
-                  <th class="text-center" style="padding:10px 8px">Account</th>
-                  <th class="text-center" style="padding:10px 8px">Type</th>
-                  <th class="text-center" style="padding:10px 8px">Amount</th>
-                  <th class="text-center" style="padding:10px 8px">Notes</th>
-                  <th class="text-center" style="padding:10px 8px; width:70px">Actions</th>
+                  <th class="text-center">Date</th>
+                  <th class="text-center">Account</th>
+                  <th class="text-center">Type</th>
+                  <th class="text-center">Amount</th>
+                  <th class="text-center">Notes</th>
+                  <th class="text-center" style="width:70px">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -239,20 +238,20 @@ const Persons = {
 
                   return `
                     <tr>
-                      <td class="text-center" style="padding:10px 8px">${Utils.formatDate(t.date)}</td>
-                      <td class="text-center" style="padding:10px 8px"><b>${Utils.escapeHtml(accDisplay)}</b></td>
-                      <td class="text-center" style="padding:10px 8px">
+                      <td class="text-center">${Utils.formatDate(t.date)}</td>
+                      <td class="text-center"><b>${Utils.escapeHtml(accDisplay)}</b></td>
+                      <td class="text-center">
                         <span class="badge ${isInc ? 'badge-success' : 'badge-danger'}">
                           ${isInc ? 'Income' : 'Expense'}
                         </span>
                       </td>
-                      <td class="text-center" style="padding:10px 8px">
+                      <td class="text-center">
                         <span class="amount ${isInc ? 'credit' : 'debit'}">
                           ${isInc ? '+' : '-'}${Utils.formatCurrency(amt)}
                         </span>
                       </td>
-                      <td class="text-center" style="padding:10px 8px; max-width:160px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis" title="${t.notes ? Utils.escapeHtml(t.notes) : ''}">${t.notes ? Utils.escapeHtml(t.notes) : '-'}</td>
-                      <td class="text-center" style="padding:10px 8px; width:70px">
+                      <td class="text-center" style="max-width:140px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis" title="${t.notes ? Utils.escapeHtml(t.notes) : ''}">${t.notes ? Utils.escapeHtml(t.notes) : '-'}</td>
+                      <td class="text-center" style="width:70px">
                         <div class="table-actions" style="justify-content:center">
                           <button class="btn btn-ghost btn-icon" onclick="Transactions.openEditModal('${t.type}', '${t.id}')" title="Edit">${Utils.icons.edit}</button>
                           <button class="btn btn-ghost btn-icon text-danger" onclick="Transactions.deleteTransaction('${t.type}', '${t.id}')" title="Delete">${Utils.icons.trash}</button>
@@ -263,57 +262,6 @@ const Persons = {
                 }).join('')}
               </tbody>
             </table>
-          </div>
-
-          <!-- Mobile Card List View -->
-          <div class="mobile-only-cards">
-            ${transactions.map(t => {
-              let accDisplay = '-';
-              let amt = 0;
-              let isInc = t.type === 'income';
-
-              if (t.accounts && Array.isArray(t.accounts)) {
-                const accEntry = t.accounts.find(a => String(a.personId) === String(personId));
-                if (accEntry) {
-                  const acc = DB.getById(DB.COLLECTIONS.ACCOUNTS, accEntry.accountId);
-                  accDisplay = acc ? acc.name : (accEntry.accountName || '-');
-                  amt = parseFloat(accEntry.amount) || 0;
-                  isInc = (accEntry.type || t.type) === 'income';
-                }
-              } else {
-                const acc = DB.getById(DB.COLLECTIONS.ACCOUNTS, t.accountId);
-                accDisplay = acc ? acc.name : (t.accountName || '-');
-                amt = Calculations.getItemAmount(t);
-              }
-
-              return `
-                <div style="background:var(--bg-glass); border:1px solid var(--border); border-radius:12px; padding:12px; margin-bottom:10px; box-shadow:0 2px 8px rgba(0,0,0,0.05)">
-                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px">
-                    <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap">
-                      <span style="font-size:0.75rem; color:var(--text-muted); font-weight:600">📅 ${Utils.formatDate(t.date)}</span>
-                      <span style="font-size:0.8rem; font-weight:700; background:rgba(255,255,255,0.06); padding:2px 8px; border-radius:10px; color:var(--text-main)">🏦 ${Utils.escapeHtml(accDisplay)}</span>
-                    </div>
-                    <span class="badge ${isInc ? 'badge-success' : 'badge-danger'}" style="padding:2px 8px; font-size:0.75rem; border-radius:12px">
-                      ${isInc ? 'Income' : 'Expense'}
-                    </span>
-                  </div>
-
-                  <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px; gap:8px">
-                    <div style="font-size:0.85rem; color:var(--text-main); font-weight:500; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap">
-                      ${t.notes ? Utils.escapeHtml(t.notes) : '<span class="text-muted" style="font-size:0.8rem">No notes</span>'}
-                    </div>
-                    <div style="font-size:1.15rem; font-weight:800; color:${isInc ? '#4ade80' : '#f87171'}; flex-shrink:0">
-                      ${isInc ? '+' : '-'}${Utils.formatCurrency(amt)}
-                    </div>
-                  </div>
-
-                  <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:8px; padding-top:8px; border-top:1px solid rgba(255,255,255,0.05)">
-                    <button class="btn btn-ghost btn-sm" onclick="Transactions.openEditModal('${t.type}', '${t.id}')" style="padding:4px 10px; font-size:0.8rem">✏️ Edit</button>
-                    <button class="btn btn-ghost btn-sm text-danger" onclick="Transactions.deleteTransaction('${t.type}', '${t.id}')" style="padding:4px 10px; font-size:0.8rem">🗑️ Delete</button>
-                  </div>
-                </div>
-              `;
-            }).join('')}
           </div>
         `}
       </div>
