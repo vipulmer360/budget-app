@@ -13,7 +13,8 @@ const Reports = {
           <div class="tabs" style="border:none;margin:0;flex-wrap:wrap">
             ${[
               { key: 'daybook', label: '📒 Day Book' },
-              { key: 'summary', label: '📊 Income vs Expense' }
+              { key: 'summary', label: '📊 Income vs Expense' },
+              { key: 'persons', label: '👥 Persons Matrix' }
             ].map(r => `
               <div class="tab ${this.currentReport === r.key ? 'active' : ''}" onclick="Reports.switchReport('${r.key}')">
                 ${r.label}
@@ -60,8 +61,63 @@ const Reports = {
     switch (this.currentReport) {
       case 'daybook': return this._daybookReport();
       case 'summary': return this._summaryReport();
+      case 'persons': return this._personsMatrixReport();
       default: return this._daybookReport();
     }
+  },
+
+  _personsMatrixReport() {
+    const data = Calculations.getAllPersonsAccountMatrix();
+    const { accounts, persons, matrix, personTotals, grandTotal } = data;
+
+    if (accounts.length === 0) {
+      return `
+        <div class="empty-state" style="padding:40px 20px;text-align:center">
+          <div style="font-size:36px;margin-bottom:8px">🏦</div>
+          <h3>No Accounts Found</h3>
+          <p>Add accounts to see person-wise balance matrix</p>
+        </div>
+      `;
+    }
+
+    return `
+      <div class="card p-3 mb-3">
+        <h3 style="font-size:1rem; margin-bottom:12px">👥 Person-wise Accounts Balance Matrix</h3>
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Account</th>
+                ${persons.map(p => `<th class="text-right">👤 ${Utils.escapeHtml(p.name)}</th>`).join('')}
+                <th class="text-right">Unassigned</th>
+                <th class="text-right">Total Account Balance</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${matrix.map(row => `
+                <tr>
+                  <td class="font-bold">${Utils.escapeHtml(row.account.name)}</td>
+                  ${persons.map(p => {
+                    const amt = row.personBalances[p.id] || 0;
+                    return `<td class="text-right">${amt !== 0 ? Utils.formatCurrency(amt) : '<span class="text-muted">-</span>'}</td>`;
+                  }).join('')}
+                  <td class="text-right">${(row.personBalances['unassigned'] || 0) !== 0 ? Utils.formatCurrency(row.personBalances['unassigned']) : '<span class="text-muted">-</span>'}</td>
+                  <td class="text-right font-bold">${Utils.formatCurrency(row.total)}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+            <tfoot>
+              <tr style="background:rgba(255,255,255,0.05); font-weight:bold">
+                <td>Total</td>
+                ${persons.map(p => `<td class="text-right">${Utils.formatCurrency(personTotals[p.id] || 0)}</td>`).join('')}
+                <td class="text-right">${Utils.formatCurrency(personTotals['unassigned'] || 0)}</td>
+                <td class="text-right text-success" style="font-size:1.1rem">${Utils.formatCurrency(grandTotal)}</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    `;
   },
 
   _daybookReport() {

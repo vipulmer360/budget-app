@@ -14,6 +14,7 @@ const App = {
     income: { title: '💵 Income', icon: 'sales', render: () => Transactions.render('income') },
     expense: { title: '💸 Expense', icon: 'purchase', render: () => Transactions.render('expense') },
     accounts: { title: '🏦 Accounts', icon: 'payments', module: Accounts },
+    persons: { title: '👥 Persons', icon: 'parties', module: Persons },
     reports: { title: '📈 Reports', icon: 'reports', module: Reports },
     settings: { title: '⚙️ Settings', icon: 'settings', module: Settings }
   },
@@ -260,7 +261,7 @@ const App = {
 
       <!-- Bottom Nav (Mobile) -->
       <nav class="bottom-nav" id="bottomNav">
-        ${['dashboard', 'transactions', 'income', 'accounts'].map(key => `
+        ${['dashboard', 'transactions', 'income', 'accounts', 'persons'].map(key => `
           <div class="bottom-nav-item ${key === this.currentPage ? 'active' : ''}" 
                onclick="App.navigate('${key}')" data-page="${key}">
             ${Utils.icons[this.pages[key].icon] || Utils.icons.list}

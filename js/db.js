@@ -9,6 +9,7 @@ const DB = {
     EXPENSES: 'budget_expenses',
     CATEGORIES: 'budget_categories',
     ACCOUNTS: 'budget_accounts',
+    PERSONS: 'budget_persons',
     SETTINGS: 'budget_settings',
     COUNTERS: 'budget_counters'
   },

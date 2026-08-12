@@ -79,8 +79,8 @@ const Dashboard = {
         <div class="recent-list-header">
           <div class="recent-list-title">🧾 All Recent Transactions</div>
           <div class="flex gap-2">
-            <button class="btn btn-sm btn-outline" onclick="Transactions.toggleSortOrder()" style="font-weight:600">
-              ${Transactions.sortOrder === 'asc' ? '📅 ⬆️ Oldest First' : '📅 ⬇️ Newest First'}
+            <button class="btn btn-sm btn-outline" onclick="App.navigate('reports'); setTimeout(() => Reports.switchReport('persons'), 50)" style="font-weight:600">
+              👥 Breakdown
             </button>
             <button class="btn btn-sm btn-outline" onclick="App.navigate('transactions')">Manage</button>
           </div>

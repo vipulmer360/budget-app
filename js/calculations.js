@@ -74,6 +74,129 @@ const Calculations = {
   },
 
   /**
+   * Calculate person-wise balance breakdown for a given account
+   */
+  getAccountPersonBreakdown(accountId) {
+    const trans = this.getAccountTransactions(accountId);
+    const persons = typeof DB !== 'undefined' ? DB.getAll(DB.COLLECTIONS.PERSONS) : [];
+    
+    const breakdownMap = {};
+
+    // Initialize map with known persons
+    persons.forEach(p => {
+      breakdownMap[p.id] = { id: p.id, name: p.name, balance: 0 };
+    });
+    breakdownMap['unassigned'] = { id: 'unassigned', name: 'Unassigned', balance: 0 };
+
+    trans.forEach(t => {
+      if (t.accounts && Array.isArray(t.accounts)) {
+        t.accounts.forEach(a => {
+          if (String(a.accountId) === String(accountId)) {
+            const pId = a.personId && breakdownMap[a.personId] ? a.personId : 'unassigned';
+            const amt = parseFloat(a.amount) || 0;
+            const type = a.type || t.type;
+            if (type === 'income') breakdownMap[pId].balance += amt;
+            else if (type === 'expense') breakdownMap[pId].balance -= amt;
+          }
+        });
+      } else if (t.accountId && String(t.accountId) === String(accountId)) {
+        const pId = t.personId && breakdownMap[t.personId] ? t.personId : 'unassigned';
+        const amt = this.getItemAmount(t);
+        const type = t.type;
+        if (type === 'income') breakdownMap[pId].balance += amt;
+        else if (type === 'expense') breakdownMap[pId].balance -= amt;
+      }
+    });
+
+    return Object.values(breakdownMap).filter(item => Math.abs(item.balance) > 0.001 || (persons.length === 0 && item.id === 'unassigned'));
+  },
+
+  /**
+   * Calculate full Persons vs Accounts Matrix
+   */
+  getAllPersonsAccountMatrix() {
+    const accounts = DB.getAll(DB.COLLECTIONS.ACCOUNTS);
+    const persons = DB.getAll(DB.COLLECTIONS.PERSONS);
+
+    const matrix = [];
+    const personTotals = {};
+    persons.forEach(p => { personTotals[p.id] = 0; });
+    personTotals['unassigned'] = 0;
+
+    let grandTotal = 0;
+
+    accounts.forEach(acc => {
+      const breakdownList = this.getAccountPersonBreakdown(acc.id);
+      const row = {
+        account: acc,
+        personBalances: {},
+        total: 0
+      };
+
+      breakdownList.forEach(b => {
+        row.personBalances[b.id] = b.balance;
+        row.total += b.balance;
+        if (personTotals[b.id] !== undefined) {
+          personTotals[b.id] += b.balance;
+        } else {
+          personTotals['unassigned'] += b.balance;
+        }
+      });
+
+      grandTotal += row.total;
+      matrix.push(row);
+    });
+
+    return {
+      accounts,
+      persons,
+      matrix,
+      personTotals,
+      grandTotal
+    };
+  },
+
+  /**
+   * Get bank-wise breakdown & grand total balance for a single person
+   */
+  getPersonBankBreakdown(personId) {
+    const accounts = DB.getAll(DB.COLLECTIONS.ACCOUNTS);
+    const breakdown = [];
+    let grandTotal = 0;
+
+    accounts.forEach(acc => {
+      const accPersonBreakdown = this.getAccountPersonBreakdown(acc.id);
+      const entry = accPersonBreakdown.find(b => String(b.id) === String(personId));
+      if (entry && Math.abs(entry.balance) > 0.001) {
+        breakdown.push({
+          accountId: acc.id,
+          accountName: acc.name,
+          balance: entry.balance
+        });
+        grandTotal += entry.balance;
+      }
+    });
+
+    return { breakdown, grandTotal };
+  },
+
+  /**
+   * Get all transactions for a specific person
+   */
+  getPersonTransactions(personId) {
+    const incomes = DB.getAll(DB.COLLECTIONS.INCOMES).map(i => ({ ...i, type: 'income' }));
+    const expenses = DB.getAll(DB.COLLECTIONS.EXPENSES).map(e => ({ ...e, type: 'expense' }));
+    const all = [...incomes, ...expenses];
+
+    return all.filter(t => {
+      if (t.accounts && Array.isArray(t.accounts)) {
+        return t.accounts.some(a => String(a.personId) === String(personId));
+      }
+      return String(t.personId) === String(personId);
+    }).sort((a, b) => new Date(b.date) - new Date(a.date));
+  },
+
+  /**
    * Calculate day totals for a group of items
    * @param {Array} items - List of transactions for a specific day
    */

@@ -205,8 +205,8 @@ const Transactions = {
           </div>
         </div>
         <div class="toolbar-right flex gap-2">
-          <button class="btn btn-outline btn-sm" onclick="Transactions.toggleSortOrder()" style="font-weight:600" title="Toggle date sorting order">
-            ${this.sortOrder === 'asc' ? '📅 ⬆️ Oldest First' : '📅 ⬇️ Newest First'}
+          <button class="btn btn-outline btn-sm" onclick="${this.accountFilter ? `Accounts.openPersonBreakdownModal('${this.accountFilter}')` : `App.navigate('reports'); setTimeout(() => Reports.switchReport('persons'), 50)`}" style="font-weight:600; color:var(--text-main)" title="View Persons Breakdown">
+            👥 Breakdown
           </button>
           <button class="btn btn-outline btn-sm" onclick="App.undoLastAction()" title="Undo last action" style="color:var(--text-accent);border-color:var(--border);font-weight:700">
             ↩️ Undo

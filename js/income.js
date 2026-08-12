@@ -68,6 +68,7 @@ const Income = {
     const container = document.getElementById('incomeAccountsContainer');
     if (!container) return;
     const allAccounts = DB.getAll(DB.COLLECTIONS.ACCOUNTS);
+    const allPersons = DB.getAll(DB.COLLECTIONS.PERSONS);
     
     let html = '';
     this.accountsList.forEach((accItem, idx) => {
@@ -83,6 +84,12 @@ const Income = {
             <select class="form-select" onchange="Income.updateAccountRow(${idx}, 'accountId', this.value)">
               <option value="">-- Select Account --</option>
               ${allAccounts.map(a => `<option value="${a.id}" ${a.id === accItem.accountId ? 'selected' : ''}>${Utils.escapeHtml(a.name)}</option>`).join('')}
+            </select>
+          </div>
+          <div style="flex:1.5">
+            <select class="form-select" onchange="Income.updateAccountRow(${idx}, 'personId', this.value)">
+              <option value="">-- Person (Optional) --</option>
+              ${allPersons.map(p => `<option value="${p.id}" ${p.id === accItem.personId ? 'selected' : ''}>👤 ${Utils.escapeHtml(p.name)}</option>`).join('')}
             </select>
           </div>
           <div style="flex:1">
@@ -106,6 +113,8 @@ const Income = {
       this.accountsList[idx].type = value;
       localStorage.setItem('budget_sticky_inc_acc_type', value);
       this.renderAccountRows();
+    } else if (field === 'personId') {
+      this.accountsList[idx].personId = value;
     } else {
       this.accountsList[idx].accountId = value;
     }
@@ -113,7 +122,7 @@ const Income = {
 
   addAccountRow() {
     const stickyType = localStorage.getItem('budget_sticky_inc_acc_type') || 'income';
-    this.accountsList.push({ accountId: '', amount: 0, type: stickyType });
+    this.accountsList.push({ accountId: '', personId: '', amount: 0, type: stickyType });
     this.renderAccountRows();
   },
 
@@ -131,7 +140,8 @@ const Income = {
       const acc = DB.getById(DB.COLLECTIONS.ACCOUNTS, a.accountId);
       return { 
         accountId: a.accountId, 
-        accountName: acc ? acc.name : '', 
+        accountName: acc ? acc.name : '',
+        personId: a.personId || '',
         amount: a.amount,
         type: a.type
       };

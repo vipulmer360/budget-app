@@ -87,6 +87,7 @@ const Accounts = {
             ${filtered.map(acc => {
               const preset = this.typePresets[acc.type] || this.typePresets.other;
               const stats = this._getAccountStats(acc.id);
+              const personBreakdown = Calculations.getAccountPersonBreakdown(acc.id);
               return `
                 <div class="account-card" style="background:${preset.gradient};cursor:pointer" onclick="Transactions.viewAccountLedger('${acc.id}')">
                   <div class="account-card-header">
@@ -101,6 +102,17 @@ const Accounts = {
                   <div class="account-card-balance">${Utils.formatCurrency(acc.balance)}</div>
 
                   ${acc.accountNumber ? `<div class="account-card-number">•••• ${acc.accountNumber.slice(-4)}</div>` : ''}
+
+                  ${personBreakdown.length > 0 ? `
+                    <div style="margin-top:10px; padding-top:6px; border-top:1px solid rgba(255,255,255,0.2); font-size:0.75rem">
+                      ${personBreakdown.map(pb => `
+                        <div style="display:flex; justify-content:space-between; opacity:0.9; margin-bottom:2px">
+                          <span>👤 ${Utils.escapeHtml(pb.name)}:</span>
+                          <span style="font-weight:600">${Utils.formatCurrency(pb.balance)}</span>
+                        </div>
+                      `).join('')}
+                    </div>
+                  ` : ''}
                 </div>
               `;
             }).join('')}
@@ -124,6 +136,7 @@ const Accounts = {
                 ${filtered.map(acc => {
                   const preset = this.typePresets[acc.type] || this.typePresets.other;
                   const stats = this._getAccountStats(acc.id);
+                  const personBreakdown = Calculations.getAccountPersonBreakdown(acc.id);
                   return `
                     <tr>
                       <td>
@@ -135,6 +148,11 @@ const Accounts = {
                               ${acc.isPersonal ? '<span title="Personal Account (Excluded from Dashboard)" style="font-size:0.8rem">🔒</span>' : ''}
                             </div>
                             ${acc.bankName ? `<div class="text-muted" style="font-size:0.75rem">${Utils.escapeHtml(acc.bankName)}</div>` : ''}
+                            ${personBreakdown.length > 0 ? `
+                              <div style="font-size:0.7rem; color:var(--text-muted); margin-top:2px">
+                                ${personBreakdown.map(pb => `👤 ${Utils.escapeHtml(pb.name)}: <b>${Utils.formatCurrency(pb.balance)}</b>`).join(' | ')}
+                              </div>
+                            ` : ''}
                           </div>
                         </div>
                       </td>
@@ -274,6 +292,42 @@ const Accounts = {
   },
 
   // Render horizontal grid or list for Dashboard
+  openPersonBreakdownModal(accId) {
+    const acc = DB.getById(DB.COLLECTIONS.ACCOUNTS, accId);
+    if (!acc) return;
+    const breakdown = Calculations.getAccountPersonBreakdown(accId);
+
+    const content = `
+      <div style="padding:4px 0">
+        <div style="text-align:center; margin-bottom:16px; padding:12px; background:rgba(255,255,255,0.03); border-radius:var(--radius-md); border:1px solid var(--border)">
+          <div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase">Total Account Balance</div>
+          <div style="font-size:1.5rem; font-weight:800; color:var(--accent); margin-top:2px">${Utils.formatCurrency(acc.balance)}</div>
+        </div>
+
+        <h4 style="font-size:0.85rem; margin-bottom:8px; font-weight:700; color:var(--text-muted)">👥 PERSON-WISE BREAKDOWN</h4>
+        ${breakdown.length === 0 ? `
+          <p class="text-muted" style="font-size:0.85rem; text-align:center; padding:12px">Is account me koi person tagged transaction nahi hai.</p>
+        ` : `
+          <div style="display:flex; flex-direction:column; gap:8px">
+            ${breakdown.map(pb => `
+              <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; background:rgba(255,255,255,0.04); border-radius:var(--radius-sm); border:1px solid var(--border)">
+                <div style="display:flex; align-items:center; gap:8px">
+                  <span style="font-size:1.1rem">👤</span>
+                  <span style="font-weight:600">${Utils.escapeHtml(pb.name)}</span>
+                </div>
+                <div style="font-weight:800; font-size:1rem; color:${pb.balance >= 0 ? 'var(--success)' : 'var(--danger)'}">
+                  ${Utils.formatCurrency(pb.balance)}
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        `}
+      </div>
+    `;
+
+    App.showModal(`🏦 ${acc.name} — Breakdown`, content);
+  },
+
   renderDashboardAccounts(mode = 'grid') {
     this.syncAccountBalances();
     const accounts = DB.getAll(DB.COLLECTIONS.ACCOUNTS);
@@ -313,8 +367,8 @@ const Accounts = {
                     </div>
                   </div>
                 </div>
-                <div style="text-align:right;">
-                  <div style="font-size:0.7rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;">Balance</div>
+                <div style="text-align:right; display:flex; flex-direction:column; align-items:flex-end;">
+                  <button type="button" class="btn btn-ghost btn-sm" style="padding:2px 6px; font-size:0.75rem; margin-bottom:4px" onclick="event.stopPropagation(); Accounts.openPersonBreakdownModal('${acc.id}')" title="View Persons Breakdown">👥 Breakdown</button>
                   <div style="font-weight:800; font-size:1.05rem; color:var(--text-main);">${Utils.formatCurrency(acc.balance)}</div>
                 </div>
               </div>
@@ -328,10 +382,12 @@ const Accounts = {
       <div class="accounts-horizontal-scroll">
         ${accounts.map(acc => {
           const preset = this.typePresets[acc.type] || this.typePresets.other;
-          const stats = this._getAccountStats(acc.id);
           return `
-            <div class="account-scroll-card minimal-card" style="background:${preset.gradient};cursor:pointer" onclick="Transactions.viewAccountLedger('${acc.id}')">
-              <div class="account-scroll-name">${Utils.escapeHtml(acc.name)}</div>
+            <div class="account-scroll-card minimal-card" style="background:${preset.gradient};cursor:pointer;position:relative" onclick="Transactions.viewAccountLedger('${acc.id}')">
+              <div style="display:flex; justify-content:space-between; align-items:center; width:100%">
+                <div class="account-scroll-name" style="margin:0">${Utils.escapeHtml(acc.name)}</div>
+                <button type="button" class="btn btn-ghost btn-icon" style="padding:0; color:rgba(255,255,255,0.9); font-size:0.95rem; width:24px; height:24px" onclick="event.stopPropagation(); Accounts.openPersonBreakdownModal('${acc.id}')" title="View Persons Breakdown">👥</button>
+              </div>
               <div class="account-scroll-balance">${Utils.formatCurrency(acc.balance)}</div>
             </div>
           `;
