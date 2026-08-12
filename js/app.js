@@ -155,8 +155,8 @@ const App = {
       <div class="login-screen">
         <div class="login-card">
           <div class="login-header">
-            <img src="assets/icons/icon-192.png" alt="Vyapar" class="login-logo">
-            <h1 class="login-title">Vyapar</h1>
+            <img src="assets/icons/icon-192.png" alt="Budget" class="login-logo">
+            <h1 class="login-title">Budget</h1>
             <p class="login-subtitle">Business Accounting App</p>
           </div>
           <div class="login-body">
