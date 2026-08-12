@@ -9,11 +9,6 @@ const DB = {
     EXPENSES: 'budget_expenses',
     CATEGORIES: 'budget_categories',
     ACCOUNTS: 'budget_accounts',
-    PARTIES: 'budget_parties',
-    SALES: 'budget_sales',
-    PURCHASES: 'budget_purchases',
-    PAYMENTS: 'budget_payments',
-    ITEMS: 'budget_items',
     SETTINGS: 'budget_settings',
     COUNTERS: 'budget_counters'
   },
@@ -125,10 +120,7 @@ const DB = {
       state: '',
       bankName: '',
       accountNumber: '',
-      ifscCode: '',
-      invoicePrefix: 'INV',
-      purchasePrefix: 'PUR',
-      termsAndConditions: 'Thank you for your business!'
+      ifscCode: ''
     };
   },
 
@@ -192,13 +184,11 @@ const DB = {
     }
 
     return {
-      totalSales: totals.totalIncome, 
-      totalPurchases: totals.totalExpense, 
-      profit: totals.netProfit,
-      salesCount: allTrans.filter(t => t.type === 'income').length,
-      purchaseCount: allTrans.filter(t => t.type === 'expense').length,
-      totalReceivable: 0,
-      totalPayable: 0
+      totalIncome: totals.totalIncome,
+      totalExpense: totals.totalExpense,
+      totalBalance: totals.totalIncome - totals.totalExpense,
+      incomeCount: allTrans.filter(t => t.type === 'income').length,
+      expenseCount: allTrans.filter(t => t.type === 'expense').length
     };
   },
 

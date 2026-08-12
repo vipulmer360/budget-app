@@ -14,11 +14,6 @@ const Sync = {
     'budget_incomes': 'incomes',
     'budget_expenses': 'expenses',
     'budget_accounts': 'accounts',
-    'budget_parties': 'parties',
-    'budget_sales': 'sales',
-    'budget_purchases': 'purchases',
-    'budget_payments': 'payments',
-    'budget_items': 'items',
     'budget_categories': 'categories',
     'budget_settings': 'settings',
     'budget_counters': 'counters'

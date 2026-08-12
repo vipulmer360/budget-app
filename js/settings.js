@@ -137,21 +137,6 @@ const Settings = {
             </div>
 
             <div class="divider"></div>
-            <h3 class="card-title mb-2">🧾 Invoice Settings</h3>
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label">Invoice Prefix</label>
-                <input type="text" class="form-input" name="invoicePrefix" value="${Utils.escapeHtml(settings.invoicePrefix || 'INV')}" placeholder="INV">
-              </div>
-              <div class="form-group">
-                <label class="form-label">Purchase Prefix</label>
-                <input type="text" class="form-input" name="purchasePrefix" value="${Utils.escapeHtml(settings.purchasePrefix || 'PUR')}" placeholder="PUR">
-              </div>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Terms & Conditions</label>
-              <textarea class="form-textarea" name="termsAndConditions" rows="3" placeholder="Invoice terms & conditions">${Utils.escapeHtml(settings.termsAndConditions || '')}</textarea>
-            </div>
 
             <button type="submit" class="btn btn-primary btn-block mt-2">💾 Save Settings</button>
           </form>
@@ -307,10 +292,7 @@ const Settings = {
       state: form.get('state'),
       bankName: form.get('bankName'),
       accountNumber: form.get('accountNumber'),
-      ifscCode: form.get('ifscCode'),
-      invoicePrefix: form.get('invoicePrefix'),
-      purchasePrefix: form.get('purchasePrefix'),
-      termsAndConditions: form.get('termsAndConditions')
+      ifscCode: form.get('ifscCode')
     };
     DB.saveSettings(newSettings);
     App.toast('Settings saved! ⚙️', 'success');
