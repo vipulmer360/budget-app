@@ -24,6 +24,64 @@ const Auth = {
     }
   },
 
+  // Email & Password Sign-In
+  async signInWithEmail(email, password) {
+    try {
+      const result = await firebaseAuth.signInWithEmailAndPassword(email, password);
+      this.currentUser = result.user;
+      App.toast(`Welcome back, ${result.user.displayName || result.user.email}! 🎉`, 'success');
+      return result.user;
+    } catch (err) {
+      console.error('Email sign-in error:', err);
+      let msg = err.message;
+      if (err.code === 'auth/operation-not-allowed') {
+        msg = '⚠️ Email/Password login is disabled in Firebase Console! Please enable Email/Password under Firebase Console -> Authentication -> Sign-in method.';
+      } else if (err.code === 'auth/user-not-found') {
+        msg = '❌ User not found. Please click "Register" tab to create your account first!';
+      } else if (err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
+        msg = '❌ Incorrect Email or Password.';
+      }
+      App.toast(msg, 'error', 7000);
+      return null;
+    }
+  },
+
+  // Email & Password Sign-Up (New Account)
+  async signUpWithEmail(email, password, displayName) {
+    try {
+      const result = await firebaseAuth.createUserWithEmailAndPassword(email, password);
+      if (displayName) {
+        await result.user.updateProfile({ displayName: displayName });
+      }
+      this.currentUser = result.user;
+      App.toast('Account created successfully! 🎉', 'success');
+      return result.user;
+    } catch (err) {
+      console.error('Sign-up error:', err);
+      let msg = err.message;
+      if (err.code === 'auth/operation-not-allowed') {
+        msg = '⚠️ Email/Password provider is disabled in Firebase Console! Please enable Email/Password in Firebase Console -> Authentication -> Sign-in method.';
+      } else if (err.code === 'auth/email-already-in-use') {
+        msg = '⚠️ This Email is already registered! Please click "Login" tab to sign in.';
+      }
+      App.toast(msg, 'error', 7000);
+      return null;
+    }
+  },
+
+  // Password Reset Email
+  async sendPasswordReset(email) {
+    try {
+      await firebaseAuth.sendPasswordResetEmail(email);
+      App.toast('Password reset link sent to your email! 📧', 'success');
+      return true;
+    } catch (err) {
+      console.error('Password reset error:', err);
+      App.toast('Reset failed: ' + err.message, 'error');
+      return false;
+    }
+  },
+
   // Sign Out
   async signOut() {
     try {

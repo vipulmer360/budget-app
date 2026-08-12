@@ -1936,16 +1936,8 @@ img {
 }
 
 .login-body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  background-color: var(--bg-primary);
-  color: var(--text-primary);
-  line-height: 1.6;
-  overflow-x: hidden;
-  min-height: 100vh;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  transition: background-color var(--transition-normal), color var(--transition-normal);
-  letter-spacing: -0.01em;
+  margin-bottom: 20px;
+  width: 100%;
 }
 
 .login-desc {
