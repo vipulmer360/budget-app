@@ -35,9 +35,25 @@ const Auth = {
     }
   },
 
+  // Whitelist of emails allowed to use the app
+  ALLOWED_EMAILS: [
+    'vipulmer360@gmail.com', // Edit this to your email
+  ],
+
   // Listen for auth state changes
   onAuthStateChanged(callback) {
-    firebaseAuth.onAuthStateChanged(user => {
+    firebaseAuth.onAuthStateChanged(async (user) => {
+      if (user) {
+        // Check if user is in whitelist
+        if (!this.ALLOWED_EMAILS.includes(user.email)) {
+          console.warn(`Unauthorized login attempt by: ${user.email}`);
+          await this.signOut();
+          App.toast('Access Denied: You are not authorized to use this app.', 'error');
+          this.currentUser = null;
+          callback(null);
+          return;
+        }
+      }
       this.currentUser = user;
       callback(user);
     });
