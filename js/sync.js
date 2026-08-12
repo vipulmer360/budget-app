@@ -11,17 +11,17 @@ const Sync = {
 
   // Collection mapping: local storage key → Firestore subcollection name
   SYNC_COLLECTIONS: {
-    'vyapar_incomes': 'incomes',
-    'vyapar_expenses': 'expenses',
-    'vyapar_accounts': 'accounts',
-    'vyapar_parties': 'parties',
-    'vyapar_sales': 'sales',
-    'vyapar_purchases': 'purchases',
-    'vyapar_payments': 'payments',
-    'vyapar_items': 'items',
-    'vyapar_categories': 'categories',
-    'vyapar_settings': 'settings',
-    'vyapar_counters': 'counters'
+    'budget_incomes': 'incomes',
+    'budget_expenses': 'expenses',
+    'budget_accounts': 'accounts',
+    'budget_parties': 'parties',
+    'budget_sales': 'sales',
+    'budget_purchases': 'purchases',
+    'budget_payments': 'payments',
+    'budget_items': 'items',
+    'budget_categories': 'categories',
+    'budget_settings': 'settings',
+    'budget_counters': 'counters'
   },
 
   // Initialize sync system
@@ -50,7 +50,7 @@ const Sync = {
 
   // Push a single collection to cloud
   async pushCollection(localKey) {
-    if (localStorage.getItem('vyapar_cloud_sync_disabled') === 'true') return;
+    if (localStorage.getItem('budget_cloud_sync_disabled') === 'true') return;
     const userDoc = this._userDoc();
     if (!userDoc) return;
 
@@ -96,7 +96,7 @@ const Sync = {
       }
 
       this.lastSyncTime = new Date();
-      localStorage.setItem('vyapar_lastSync', this.lastSyncTime.toISOString());
+      localStorage.setItem('budget_lastSync', this.lastSyncTime.toISOString());
       this._updateSyncIndicator('synced');
       console.log('✅ All data pushed to cloud');
     } catch (err) {
@@ -134,7 +134,7 @@ const Sync = {
 
   // Pull ALL collections from cloud
   async pullAll(force = false) {
-    if (localStorage.getItem('vyapar_cloud_sync_disabled') === 'true') {
+    if (localStorage.getItem('budget_cloud_sync_disabled') === 'true') {
       App.toast('Cloud sync is currently OFF in Settings 🔴', 'warning');
       return;
     }
@@ -150,7 +150,7 @@ const Sync = {
       }
 
       this.lastSyncTime = new Date();
-      localStorage.setItem('vyapar_lastSync', this.lastSyncTime.toISOString());
+      localStorage.setItem('budget_lastSync', this.lastSyncTime.toISOString());
       this._updateSyncIndicator('synced');
 
       if (pulledAny) {
@@ -168,7 +168,7 @@ const Sync = {
   // ========== SMART SYNC: Merge Cloud ↔ Local ==========
 
   async smartSync() {
-    if (localStorage.getItem('vyapar_cloud_sync_disabled') === 'true') {
+    if (localStorage.getItem('budget_cloud_sync_disabled') === 'true') {
       console.log('🔴 Cloud sync is disabled in settings');
       return;
     }
@@ -227,7 +227,7 @@ const Sync = {
 
     // 1. Overwrite all local storage keys with empty arrays
     Object.keys(this.SYNC_COLLECTIONS).forEach(localKey => {
-      if (localKey === 'vyapar_settings') {
+      if (localKey === 'budget_settings') {
         localStorage.setItem(localKey, JSON.stringify(DB.getSettings()));
       } else {
         localStorage.setItem(localKey, '[]');
@@ -422,7 +422,7 @@ const Sync = {
 
   // Get last sync time display
   getLastSyncDisplay() {
-    const last = localStorage.getItem('vyapar_lastSync');
+    const last = localStorage.getItem('budget_lastSync');
     if (!last) return 'Never';
     const d = new Date(last);
     return d.toLocaleString('en-IN', { dateStyle: 'short', timeStyle: 'short' });

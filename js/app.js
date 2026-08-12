@@ -24,7 +24,7 @@ const App = {
     this.handleInstallPrompt();
 
     // Initialize theme
-    const savedTheme = localStorage.getItem('vyapar_theme') || 'dark';
+    const savedTheme = localStorage.getItem('budget_theme') || 'dark';
     document.documentElement.setAttribute('data-theme', savedTheme);
 
     // Initialize sync module
@@ -34,7 +34,7 @@ const App = {
     Auth.onAuthStateChanged(user => {
       if (user) {
         // Detect user switch: if different user logged in, clear local data first
-        const lastUid = localStorage.getItem('vyapar_lastUid');
+        const lastUid = localStorage.getItem('budget_lastUid');
         if (lastUid && lastUid !== user.uid) {
           console.log('🔄 Different user detected — clearing old local data...');
           // Clear all collection data (not settings needed for app shell)
@@ -42,7 +42,7 @@ const App = {
             localStorage.removeItem(col);
           });
         }
-        localStorage.setItem('vyapar_lastUid', user.uid);
+        localStorage.setItem('budget_lastUid', user.uid);
 
         // User is logged in — show main app
         this.renderShell();
@@ -397,7 +397,7 @@ const App = {
     const currentTheme = root.getAttribute('data-theme');
     const newTheme = currentTheme === 'light' ? 'dark' : 'light';
     root.setAttribute('data-theme', newTheme);
-    localStorage.setItem('vyapar_theme', newTheme);
+    localStorage.setItem('budget_theme', newTheme);
     
     const themeIcon = document.getElementById('themeIcon');
     if (themeIcon) {

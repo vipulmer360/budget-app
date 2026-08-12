@@ -5,17 +5,17 @@
 const DB = {
   // Collection names
   COLLECTIONS: {
-    INCOMES: 'vyapar_incomes',
-    EXPENSES: 'vyapar_expenses',
-    CATEGORIES: 'vyapar_categories',
-    ACCOUNTS: 'vyapar_accounts',
-    PARTIES: 'vyapar_parties',
-    SALES: 'vyapar_sales',
-    PURCHASES: 'vyapar_purchases',
-    PAYMENTS: 'vyapar_payments',
-    ITEMS: 'vyapar_items',
-    SETTINGS: 'vyapar_settings',
-    COUNTERS: 'vyapar_counters'
+    INCOMES: 'budget_incomes',
+    EXPENSES: 'budget_expenses',
+    CATEGORIES: 'budget_categories',
+    ACCOUNTS: 'budget_accounts',
+    PARTIES: 'budget_parties',
+    SALES: 'budget_sales',
+    PURCHASES: 'budget_purchases',
+    PAYMENTS: 'budget_payments',
+    ITEMS: 'budget_items',
+    SETTINGS: 'budget_settings',
+    COUNTERS: 'budget_counters'
   },
 
   // ========== GENERIC CRUD ==========

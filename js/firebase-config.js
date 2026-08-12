@@ -4,18 +4,18 @@
 
 // ⚠️ IMPORTANT: Replace these values with YOUR Firebase project config!
 // Go to https://console.firebase.google.com → Create Project → Web App → Copy Config
-const FIREBASE_CONFIG = {
-  apiKey: "AIzaSyC7cQpvpYg3C0TmNPPdjmJ0U99tnUZo9nE",
-  authDomain: "vyapar-app-95a80.firebaseapp.com",
-  projectId: "vyapar-app-95a80",
-  storageBucket: "vyapar-app-95a80.firebasestorage.app",
-  messagingSenderId: "937253556831",
-  appId: "1:937253556831:web:f7a4d95e7e4af937fa01ea",
-  measurementId: "G-S1EL85F1W1"
+const firebaseConfig = {
+  apiKey: "AIzaSyAQYTe_FtLw4h8LLiaNLtLTOR7zWjSc3XM",
+  authDomain: "budget-app-fdbbe.firebaseapp.com",
+  projectId: "budget-app-fdbbe",
+  storageBucket: "budget-app-fdbbe.firebasestorage.app",
+  messagingSenderId: "319248156979",
+  appId: "1:319248156979:web:c1727983ff0edcd2635646",
+  measurementId: "G-B690JS9C16"
 };
 
 // Initialize Firebase
-firebase.initializeApp(FIREBASE_CONFIG);
+firebase.initializeApp(firebaseConfig);
 
 // Firebase services
 const firebaseAuth = firebase.auth();

@@ -6,12 +6,12 @@ const Transactions = {
   currentType: 'all', // 'all', 'income', or 'expense'
   searchTerm: '',
   accountFilter: '', // Filter by account
-  sortOrder: localStorage.getItem('vyapar_sort_order') || 'desc', // 'desc' (Newest First) or 'asc' (Oldest First)
+  sortOrder: localStorage.getItem('budget_sort_order') || 'desc', // 'desc' (Newest First) or 'asc' (Oldest First)
   accountLedgerTab: 'pending',
 
   toggleSortOrder() {
     this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc';
-    localStorage.setItem('vyapar_sort_order', this.sortOrder);
+    localStorage.setItem('budget_sort_order', this.sortOrder);
     App.toast(`Sorted by ${this.sortOrder === 'asc' ? 'Oldest First ⬆️' : 'Newest First ⬇️'}`, 'info');
     App.refreshPage();
   },

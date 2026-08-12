@@ -13,8 +13,8 @@ const Income = {
     const showInMainDefault = isEdit ? !record.isPartyOnly : true;
 
     // Get sticky types
-    const stickyAccType = localStorage.getItem('vyapar_sticky_inc_acc_type') || 'income';
-    const stickyPartyType = localStorage.getItem('vyapar_sticky_inc_party_type') || 'expense';
+    const stickyAccType = localStorage.getItem('budget_sticky_inc_acc_type') || 'income';
+    const stickyPartyType = localStorage.getItem('budget_sticky_inc_party_type') || 'expense';
 
     // Initialize accounts array
     if (record && record.accounts && record.accounts.length > 0) {
@@ -62,7 +62,7 @@ const Income = {
         <div style="display:flex; gap:12px; margin-bottom:12px">
           <div style="flex:1; max-width:130px">
             <label class="form-label" style="margin-bottom:6px; font-size:0.75rem">Date</label>
-            <input type="date" class="form-input" name="date" value="${isEdit ? record.date : (localStorage.getItem('vyapar_sticky_date') || Utils.today())}" >
+            <input type="date" class="form-input" name="date" value="${isEdit ? record.date : (localStorage.getItem('budget_sticky_date') || Utils.today())}" >
           </div>
           <div style="flex:1">
             <label class="form-label" style="margin-bottom:6px; font-size:0.75rem">Notes</label>
@@ -130,7 +130,7 @@ const Income = {
       this.partiesList[idx].amount = parseFloat(value) || 0;
     } else if (field === 'type') {
       this.partiesList[idx].type = value;
-      localStorage.setItem('vyapar_sticky_inc_party_type', value);
+      localStorage.setItem('budget_sticky_inc_party_type', value);
       this.renderPartyRows();
     } else {
       if (value === '_NEW_') {
@@ -152,7 +152,7 @@ const Income = {
   },
 
   addPartyRow() {
-    const stickyType = localStorage.getItem('vyapar_sticky_inc_party_type') || 'expense';
+    const stickyType = localStorage.getItem('budget_sticky_inc_party_type') || 'expense';
     this.partiesList.push({ partyName: '', amount: 0, type: stickyType });
     this.renderPartyRows();
   },
@@ -202,7 +202,7 @@ const Income = {
       this.accountsList[idx].amount = parseFloat(value) || 0;
     } else if (field === 'type') {
       this.accountsList[idx].type = value;
-      localStorage.setItem('vyapar_sticky_inc_acc_type', value);
+      localStorage.setItem('budget_sticky_inc_acc_type', value);
       this.renderAccountRows();
     } else {
       this.accountsList[idx].accountId = value;
@@ -210,7 +210,7 @@ const Income = {
   },
 
   addAccountRow() {
-    const stickyType = localStorage.getItem('vyapar_sticky_inc_acc_type') || 'income';
+    const stickyType = localStorage.getItem('budget_sticky_inc_acc_type') || 'income';
     this.accountsList.push({ accountId: '', amount: 0, type: stickyType });
     this.renderAccountRows();
   },
@@ -264,7 +264,7 @@ const Income = {
     });
 
     const entryDate = form.get('date') || Utils.today();
-    localStorage.setItem('vyapar_sticky_date', entryDate);
+    localStorage.setItem('budget_sticky_date', entryDate);
 
     const updatedData = {
       type: 'income', // Overall entry type

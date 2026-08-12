@@ -340,7 +340,7 @@ const Settings = {
 
   exportData() {
     const data = DB.exportAll();
-    Utils.downloadFile(data, `vyapar_backup_${Utils.today()}.json`);
+    Utils.downloadFile(data, `budget_backup_${Utils.today()}.json`);
     App.toast('Backup downloaded! 📥', 'success');
   },
 
@@ -370,16 +370,16 @@ const Settings = {
   },
 
   isCloudSyncDisabled() {
-    return localStorage.getItem('vyapar_cloud_sync_disabled') === 'true';
+    return localStorage.getItem('budget_cloud_sync_disabled') === 'true';
   },
 
   toggleCloudSync() {
     const current = this.isCloudSyncDisabled();
     if (current) {
-      localStorage.removeItem('vyapar_cloud_sync_disabled');
+      localStorage.removeItem('budget_cloud_sync_disabled');
       App.toast('Cloud Sync turned ON 🟢', 'success');
     } else {
-      localStorage.setItem('vyapar_cloud_sync_disabled', 'true');
+      localStorage.setItem('budget_cloud_sync_disabled', 'true');
       App.toast('Cloud Sync turned OFF 🔴', 'warning');
     }
     App.refreshPage();
