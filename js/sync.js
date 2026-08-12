@@ -14,6 +14,7 @@ const Sync = {
     'budget_incomes': 'incomes',
     'budget_expenses': 'expenses',
     'budget_accounts': 'accounts',
+    'budget_persons': 'persons',
     'budget_categories': 'categories',
     'budget_settings': 'settings',
     'budget_counters': 'counters'
