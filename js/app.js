@@ -25,7 +25,10 @@ const App = {
       const settings = DB.getSettings();
       const savedPrefs = settings.dashboardPreferences || {};
       const scale = parseInt(savedPrefs.uiScale, 10) || 88;
-      document.documentElement.style.setProperty('--ui-scale-ratio', (scale / 100).toString());
+      const ratio = (scale / 100).toString();
+      document.documentElement.style.setProperty('--ui-scale-ratio', ratio);
+      const mainContent = document.querySelector('.main-content') || document.body;
+      if (mainContent) mainContent.style.zoom = ratio;
     } catch (e) {
       document.documentElement.style.setProperty('--ui-scale-ratio', '0.88');
     }

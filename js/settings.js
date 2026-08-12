@@ -344,7 +344,10 @@ const Settings = {
   updateScalePreview(val) {
     const badge = document.getElementById('uiScaleValBadge');
     if (badge) badge.textContent = `${val}%`;
-    document.documentElement.style.setProperty('--ui-scale-ratio', (parseInt(val, 10) / 100).toString());
+    const ratio = (parseInt(val, 10) / 100).toString();
+    document.documentElement.style.setProperty('--ui-scale-ratio', ratio);
+    const mainContent = document.querySelector('.main-content') || document.body;
+    if (mainContent) mainContent.style.zoom = ratio;
   },
 
   setScalePreset(val) {
