@@ -1,5 +1,5 @@
 /* ==========================================
-   VYAPAR PWA — AUTO SYNC MODULE (Firestore)
+   BUDGET APP — AUTO SYNC MODULE (Firestore)
    ========================================== */
 
 const Sync = {

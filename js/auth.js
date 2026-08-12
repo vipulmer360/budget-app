@@ -1,5 +1,5 @@
 /* ==========================================
-   VYAPAR PWA — AUTHENTICATION MODULE
+   BUDGET APP — AUTHENTICATION MODULE
    ========================================== */
 
 const Auth = {

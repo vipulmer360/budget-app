@@ -1,11 +1,10 @@
-const CACHE_NAME = 'budget-v2';
+const CACHE_NAME = 'budget-v4';
 const ASSETS = [
   './',
   './index.html',
   './manifest.json',
   './css/style.css',
   './css/dashboard.css',
-  './css/print.css',
   './js/app.js',
   './js/db.js',
   './js/utils.js',

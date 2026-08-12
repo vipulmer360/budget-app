@@ -1,5 +1,5 @@
 /* ==========================================
-   VYAPAR PWA — DATABASE LAYER (localStorage)
+   BUDGET APP — DATABASE LAYER (localStorage)
    ========================================== */
 
 const DB = {

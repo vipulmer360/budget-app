@@ -1,5 +1,5 @@
 /* ==========================================
-   VYAPAR PWA — MAIN APP CONTROLLER
+   BUDGET APP — MAIN APP CONTROLLER
    ========================================== */
 
 const App = {

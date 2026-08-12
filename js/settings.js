@@ -1,5 +1,5 @@
 /* ==========================================
-   VYAPAR PWA — SETTINGS MODULE
+   BUDGET APP — SETTINGS MODULE
    ========================================== */
 
 const Settings = {

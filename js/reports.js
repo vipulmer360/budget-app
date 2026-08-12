@@ -1,5 +1,5 @@
 /* ==========================================
-   VYAPAR PWA — REPORTS MODULE
+   BUDGET APP — REPORTS MODULE
    ========================================== */
 
 const Reports = {

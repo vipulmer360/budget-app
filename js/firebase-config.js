@@ -1,5 +1,5 @@
 /* ==========================================
-   VYAPAR PWA — FIREBASE CONFIGURATION
+   BUDGET APP — FIREBASE CONFIGURATION
    ========================================== */
 
 // ⚠️ IMPORTANT: Replace these values with YOUR Firebase project config!

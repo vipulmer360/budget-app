@@ -1,5 +1,5 @@
 /* ==========================================
-   VYAPAR PWA — UTILITY FUNCTIONS
+   BUDGET APP — UTILITY FUNCTIONS
    ========================================== */
 
 const Utils = {

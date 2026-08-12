@@ -1,5 +1,5 @@
 /* ==========================================
-   VYAPAR PWA — ACCOUNTS MODULE
+   BUDGET APP — ACCOUNTS MODULE
    ========================================== */
 
 const Accounts = {

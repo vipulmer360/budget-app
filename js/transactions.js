@@ -298,6 +298,21 @@ const Transactions = {
     App.refreshPage();
   },
 
+  getParties() {
+    const incomes = DB.getAll(DB.COLLECTIONS.INCOMES);
+    const expenses = DB.getAll(DB.COLLECTIONS.EXPENSES);
+    const set = new Set();
+    [...incomes, ...expenses].forEach(t => {
+      if (t.party && t.party !== 'General') set.add(t.party);
+      if (t.parties && Array.isArray(t.parties)) {
+        t.parties.forEach(p => {
+          if (p.partyName) set.add(p.partyName);
+        });
+      }
+    });
+    return Array.from(set);
+  },
+
   openAddModal(type = 'income') {
     if (type === 'income') {
       Income.openModal();

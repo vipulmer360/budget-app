@@ -1,5 +1,5 @@
 /* ==========================================
-   VYAPAR PWA — DASHBOARD MODULE
+   BUDGET APP — DASHBOARD MODULE
    ========================================== */
 
 const Dashboard = {
