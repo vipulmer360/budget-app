@@ -60,7 +60,7 @@ self.addEventListener('fetch', (e) => {
       url.pathname.endsWith('/')) {
 
     e.respondWith(
-      fetch(e.request)
+      fetch(new Request(e.request, { cache: 'no-cache' }))
         .then((response) => {
           // Got fresh response from network — update cache & serve
           if (response.status === 200) {

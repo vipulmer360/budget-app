@@ -268,10 +268,10 @@ const Settings = {
             <h3 class="card-title">ℹ️ App Info</h3>
           </div>
           <div style="font-size:0.85rem;color:var(--text-muted)">
-            <p><strong>App:</strong> Budget Business App</p>
+            <p><strong>App:</strong> Budget App</p>
             <p><strong>Version:</strong> 1.0.0 (PWA)</p>
-            <p><strong>Storage:</strong> localStorage (Browser)</p>
-            <p style="margin-top:8px">Made with ❤️ for Indian Businesses</p>
+            <p><strong>Storage:</strong> Local + Cloud Sync</p>
+            <button class="btn btn-outline btn-sm mt-2" onclick="App.forceUpdateApp()" style="width:100%; border-color:var(--accent); color:var(--accent)">🔄 Check & Install Latest App Update</button>
           </div>
         </div>
       </div>

@@ -48,11 +48,9 @@ const App = {
         this.renderShell();
         this.handleRouting();
 
-        // Load from hash
-        const hash = window.location.hash.replace('#', '');
-        if (hash && this.pages[hash]) {
-          this.currentPage = hash;
-        }
+        // Always default to dashboard on launch
+        this.currentPage = 'dashboard';
+        window.location.hash = 'dashboard';
         this.renderPage();
 
         // Handle back/forward
